@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_LOCAL")
+}
+
+enum Availability {
+  IN_STORE
+  ONLINE
+}
+model Product {
+  id Int @default(autoincrement()) @id
+  name String 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  price Float 
+  sale Boolean 
+  availability Availability
+}
+
+model Raffle {
+  id Int @default(autoincrement()) @id
+  title String 
+  secretToken String @map("secret_token")
+  isActive Boolean @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  participants Participant[]
+}
+
+model Participant {
+  id Int @default(autoincrement()) @id
+  firstName String @map("first_name")
+  lastName String @map("last_name")
+  email String
+  phone String
+  raffle Raffle @relation(fields: [raffleId], references: [id])
+  raffleId Int 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
