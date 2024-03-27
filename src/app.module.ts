@@ -9,6 +9,8 @@ import { ParticipantsModule } from './participants/participants.module';
 import { UsersService } from './users/users.service';
 import { ProductsModule } from './products/products.module';
 import { DatabaseModule } from './database/database.module';
+import { RafflesService } from './raffles/raffles.service';
+import { ParticipantsService } from './participants/participants.service';
 
 @Module({
   imports: [
@@ -19,6 +21,6 @@ import { DatabaseModule } from './database/database.module';
     DatabaseModule,
   ],
   controllers: [AppController, RafflesController, UsersController],
-  providers: [AppService, UsersService],
+  providers: [AppService, UsersService, RafflesService, ParticipantsService],
 })
 export class AppModule {}

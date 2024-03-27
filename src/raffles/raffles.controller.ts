@@ -1,25 +1,40 @@
-import { Controller, Get, Param, Post, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Patch,
+  Body,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { RafflesService } from './raffles.service';
+import { Prisma } from '@prisma/client';
+import { ParticipantsService } from 'src/participants/participants.service';
 
 @Controller('raffles')
 export class RafflesController {
+  constructor(
+    private readonly rafflesService: RafflesService,
+    private readonly participantsService: ParticipantsService,
+  ) {}
   @Get()
-  findAll() {
-    return `This action returns all raffle`;
+  getAllRaffles() {
+    return this.rafflesService.findAll();
   }
 
   @Post()
-  createRaffle() {
-    return `This action creates a new raffle`;
+  createRaffle(@Body() raffle: Prisma.RaffleCreateInput) {
+    return this.rafflesService.create(raffle);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return `This action returns ${id} raffle`;
+  getRaffle(@Param('id', ParseIntPipe) id: number) {
+    return this.rafflesService.findOne(id);
   }
 
   @Get(':id/participants')
-  findAllParticipants(@Param('id') id: string) {
-    return `This action Retrieve all participants of a raffle for ${id}`;
+  findAllParticipants(@Param('id', ParseIntPipe) id: number) {
+    return this.participantsService.findOne(id);
   }
 
   @Post(':id/participants')
@@ -33,7 +48,7 @@ export class RafflesController {
   }
 
   @Patch(':id/winner')
-  createWinner(@Param('id') id: string) {
+  selectWinner(@Param('id') id: string) {
     return `this action retrieves the winner of a raffle ${id}`;
   }
 }
