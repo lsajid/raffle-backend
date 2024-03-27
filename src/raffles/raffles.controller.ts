@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, Patch } from '@nestjs/common';
 
 @Controller('raffles')
 export class RafflesController {
@@ -30,5 +30,10 @@ export class RafflesController {
   @Get(':id/winner')
   findWinner(@Param('id') id: string) {
     return `This action retrieves the winner of a raffle ${id}`;
+  }
+
+  @Patch(':id/winner')
+  createWinner(@Param('id') id: string) {
+    return `this action retrieves the winner of a raffle ${id}`;
   }
 }
