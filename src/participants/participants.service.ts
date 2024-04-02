@@ -1,7 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Participant, Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
-import { UpdateRaffleDto } from 'src/raffles/dtos/UpdateRaffle.dto';
 
 type raffle = {
   id: number,
@@ -29,12 +28,14 @@ export class ParticipantsService {
   }
 
   async updateParticipantWinner(id: number): Promise<Participant> {
-    const participantId = await this.getRandomParticipantId(id);
-    console.log("what is participantId", participantId)
-    if(!participantId) throw new HttpException(`Error: No participants present for raffle`, 400);
+    const randomId = await this.getRandomParticipant(id);
+    if(!randomId) throw new HttpException(`Error: No participants present for raffle`, 400);
     return this.databaseService.participant.update({
       where: {
-        id: participantId
+        id: randomId,
+        raffle: {
+          id
+        }
       },
       data: {
         isWinner: true
@@ -42,22 +43,26 @@ export class ParticipantsService {
     })
   }
 
-  async getRandomParticipantId(raffleId: number): Promise<number> {
-    const count = await this.databaseService.participant.count({
+  async getRandomParticipant(id: number):Promise<number> {
+    //since this is a small application we don't need to worry about the length of participants
+    const allIds = await this.databaseService.participant.findMany({
       where: {
         raffle: {
-          id: raffleId
+          id
         }
+      },
+      select: {
+        id: true,
+        firstName: true,
       }
     })
-    if(!count) throw new HttpException(`No participants present for raffleId: ${raffleId}, cannot select winner`, 400);
-    return this.getRandomInteger(1, count)
+    allIds.sort(() => 0.5 - Math.random())
+    const randomIds = allIds.slice(0, allIds.length).map((participant) => participant.id);
+    const randomId = this.getRandomId(randomIds);
+    return randomId;
   }
 
-  getRandomInteger(min:number = 1, max: number):number {
-    if(min === max) return max;
-    const minCeiled = Math.ceil(min);
-    const maxFloored = Math.floor(max);
-    return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled)
+  getRandomId (list: number[]): number {
+    return list[Math.floor((Math.random()*list.length))];
   }
 }

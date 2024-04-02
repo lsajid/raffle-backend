@@ -62,7 +62,7 @@ export class RafflesController {
   selectWinner(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateRaffleDto: UpdateRaffleDto
-    ):Promise<{raffle: Raffle, winner: Participant}> {
+    ): Promise<{raffle: Raffle, winner: Participant}> {
       return this.rafflesService.chooseRaffleWinner(id, updateRaffleDto);
   }
 }

@@ -1,5 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { Prisma, Raffle } from '@prisma/client';
+import { Participant, Prisma, Raffle } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { ParticipantsService } from 'src/participants/participants.service';
 import { UpdateRaffleDto } from './dtos/UpdateRaffle.dto';
@@ -31,6 +31,7 @@ export class RafflesService {
     const raffle = await this.findRaffle(id);
     if(!raffle) throw new HttpException('Raffle Not Found', 404);
     if(updateRaffleDto.secretToken !== raffle.secretToken) throw new HttpException('Invalid Secret Token', 498)
+    if(!raffle.isActive) throw new HttpException('Raffle is closed', 400);
     return this.databaseService.raffle.update({
       where: {
         id,
@@ -41,7 +42,7 @@ export class RafflesService {
     });
   }
 
-  async chooseRaffleWinner(id: number, updateRaffleDto: UpdateRaffleDto) {
+  async chooseRaffleWinner(id: number, updateRaffleDto: UpdateRaffleDto): Promise<{raffle: Raffle, winner: Participant}> {
     const updatedRaffle = await this.updateRaffleStatus(id, updateRaffleDto)
     const updatedParticipant = await this.participantService.updateParticipantWinner(id);
     return { raffle: updatedRaffle, winner: updatedParticipant}
