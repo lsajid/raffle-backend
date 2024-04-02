@@ -6,10 +6,15 @@ import {
   Patch,
   Body,
   ParseIntPipe,
+  UsePipes,
+  ValidationPipe,
+  HttpException,
 } from '@nestjs/common';
 import { RafflesService } from './raffles.service';
-import { Prisma } from '@prisma/client';
+import { Participant, Prisma, Raffle } from '@prisma/client';
 import { ParticipantsService } from 'src/participants/participants.service';
+import { CreateParticipantDto } from 'src/participants/dtos/CreateParticipant.dto';
+import { UpdateRaffleDto } from './dtos/UpdateRaffle.dto';
 
 @Controller('raffles')
 export class RafflesController {
@@ -19,36 +24,45 @@ export class RafflesController {
   ) {}
   @Get()
   getAllRaffles() {
-    return this.rafflesService.findAll();
+    return this.rafflesService.findAllRaffles();
   }
 
   @Post()
   createRaffle(@Body() raffle: Prisma.RaffleCreateInput) {
-    return this.rafflesService.create(raffle);
+    return this.rafflesService.createRaffle(raffle);
   }
 
   @Get(':id')
   getRaffle(@Param('id', ParseIntPipe) id: number) {
-    return this.rafflesService.findOne(id);
+    return this.rafflesService.findRaffle(id);
   }
 
   @Get(':id/participants')
   findAllParticipants(@Param('id', ParseIntPipe) id: number) {
-    return this.participantsService.findOne(id);
+    return this.participantsService.findAllParticipantsByRaffleId(id);
   }
 
   @Post(':id/participants')
-  createParticipant(@Param('id') id: string) {
-    return `This action signs up a participant for raffle id ${id}`;
+  @UsePipes(ValidationPipe)
+  createParticipant(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() {...createParticipantDto }: CreateParticipantDto
+  ) {
+    return this.participantsService.create(id, createParticipantDto);
   }
 
   @Get(':id/winner')
-  findWinner(@Param('id') id: string) {
-    return `This action retrieves the winner of a raffle ${id}`;
+  findWinner(@Param('id', ParseIntPipe) id: number) {
+    const raffleWinner = this.rafflesService.getRaffleWinner(id);
+    if(!raffleWinner) throw new HttpException(`No winner has been selected for raffle, please select a winner`, 400);
+    return raffleWinner
   }
 
   @Patch(':id/winner')
-  selectWinner(@Param('id') id: string) {
-    return `this action retrieves the winner of a raffle ${id}`;
+  selectWinner(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRaffleDto: UpdateRaffleDto
+    ):Promise<{raffle: Raffle, winner: Participant}> {
+      return this.rafflesService.chooseRaffleWinner(id, updateRaffleDto);
   }
 }
