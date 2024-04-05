@@ -46,7 +46,7 @@ export class RafflesController {
   @UsePipes(ValidationPipe)
   createParticipant(
     @Param('id', ParseIntPipe) id: number,
-    @Body() {...createParticipantDto }: CreateParticipantDto
+    @Body() { ...createParticipantDto }: CreateParticipantDto,
   ) {
     return this.participantsService.create(id, createParticipantDto);
   }
@@ -54,15 +54,19 @@ export class RafflesController {
   @Get(':id/winner')
   findWinner(@Param('id', ParseIntPipe) id: number) {
     const raffleWinner = this.rafflesService.getRaffleWinner(id);
-    if(!raffleWinner) throw new HttpException(`No winner has been selected for raffle, please select a winner`, 400);
-    return raffleWinner
+    if (!raffleWinner)
+      throw new HttpException(
+        `No winner has been selected for raffle, please select a winner`,
+        400,
+      );
+    return raffleWinner;
   }
 
   @Patch(':id/winner')
   selectWinner(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateRaffleDto: UpdateRaffleDto
-    ): Promise<{raffle: Raffle, winner: Participant}> {
-      return this.rafflesService.chooseRaffleWinner(id, updateRaffleDto);
+    @Body() updateRaffleDto: UpdateRaffleDto,
+  ): Promise<{ raffle: Raffle; winner: Participant }> {
+    return this.rafflesService.chooseRaffleWinner(id, updateRaffleDto);
   }
 }

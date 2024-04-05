@@ -8,7 +8,7 @@ describe('DatabaseService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [DatabaseService],
     }).compile();
-    
+
     service = module.get<DatabaseService>(DatabaseService);
   });
 

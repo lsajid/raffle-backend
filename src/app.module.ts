@@ -9,11 +9,7 @@ import { RafflesService } from './raffles/raffles.service';
 import { ParticipantsService } from './participants/participants.service';
 
 @Module({
-  imports: [
-    RafflesModule,
-    ParticipantsModule,
-    DatabaseModule,
-  ],
+  imports: [RafflesModule, ParticipantsModule, DatabaseModule],
   controllers: [AppController, RafflesController],
   providers: [AppService, RafflesService, ParticipantsService],
 })
